@@ -42,9 +42,30 @@ const routes = [
     },
     {
         command: "list",
-        describe: "List all notes",
-        handler(argv) {
+        describe: "List all notes titles",
+        handler() {
             notes.list();
+        },
+    },
+    {
+        command: "listDetailed",
+        describe: "List all notes titles and contents",
+        handler() {
+            notes.listDetailed();
+        },
+    },
+    {
+        command: "read",
+        describe: "Read the contents of a specific note",
+        builder: {
+            title: {
+                describe: "Title of the note to be read",
+                demandOption: true,
+                type: "string",
+            },
+        },
+        handler(argv) {
+            notes.read(argv.title);
         },
     },
 ];

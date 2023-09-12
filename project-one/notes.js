@@ -1,73 +1,93 @@
 const fs = require("fs");
 
-let NOTES_FILE_PATH = "./notes.txt";
+let NOTES_FILE_PATH = "./notes.json";
 
 function logNote(note) {
-    console.log(note.title, " - ", note.content);
+    console.log(note.title + ":");
+    console.log(" -", note.content, "\n");
 }
 
 function logNotes(notes) {
-    console.log(notes);
+    notes.forEach((note) => {
+        logNote(note);
+    });
 }
 
-function readNotes() {
+function loadNotes() {
     try {
-        let notesJSON = fs.readFileSync(NOTES_FILE_PATH);
+        const notesJSON = fs.readFileSync(NOTES_FILE_PATH);
         return JSON.parse(notesJSON);
     } catch (e) {
         console.log("Notes file not found. Creating one.");
-        let newNotesList = [];
-        writeNotes(newNotesList);
+        const newNotesList = [];
+        saveNotes(newNotesList);
         return newNotesList;
     }
 }
 
-function writeNotes(notes) {
+function saveNotes(notes) {
     let notesJSON = JSON.stringify(notes);
     fs.writeFileSync(NOTES_FILE_PATH, notesJSON);
 }
 
 function add(note) {
-    let notes = readNotes();
-    let matchingNotes = notes.filter((curr) => curr.title === note.title);
-    if (matchingNotes.length > 0) {
+    const notes = loadNotes();
+    const matchingNote = notes.find((curr) => curr.title === note.title);
+    if (matchingNote) {
         console.log("Note already exists:");
-        logNote(matchingNotes[0]);
+        logNote(matchingNote);
     } else {
         notes.push(note);
-        writeNotes(notes);
+        saveNotes(notes);
         console.log("Note added:");
         logNote(note);
     }
 }
 
 function remove(note) {
-    let notes = readNotes();
-    let noteIndex = notes.findIndex((curr) => curr.title === note.title);
+    const notes = loadNotes();
+    const noteIndex = notes.findIndex((curr) => curr.title === note.title);
     if (noteIndex === -1) {
         console.log(`Note ${note.title} doesn't exist`);
     } else {
-        notes.splice(noteIndex, 1);
-        writeNotes(notes);
+        const removedNote = notes.splice(noteIndex, 1)[0];
+        saveNotes(notes);
         console.log("Note removed:");
-        logNote(note);
+        logNote(removedNote);
     }
 }
 
-add({ title: "Tit1", content: "Cont1" });
-add({ title: "Tit2", content: "Cont2" });
-add({ title: "Tit3", content: "Cont3" });
-add({ title: "Tit4", content: "Cont4" });
+function get(noteTitle) {
+    const notes = loadNotes();
+    const note = notes.find((curr) => curr.title === noteTitle);
+    return note;
+}
 
-console.log(readNotes());
+function getAll() {
+    const notes = loadNotes();
+    return notes;
+}
 
-remove({ title: "Tit33" });
-console.log(readNotes());
+function list() {
+    let notes = getAll();
+    console.log("Note titles:");
+    notes.forEach((note) => {
+        console.log("   -", note.title);
+    });
+}
 
-remove({ title: "Tit3" });
-console.log(readNotes());
+function listDetailed() {
+    let notes = getAll();
+    logNotes(notes);
+}
 
-remove({ title: "3" });
-console.log(readNotes());
+function read(noteTitle) {
+    const note = get(noteTitle);
+    if (note) {
+        logNote(note);
+    } else {
+        console.log("Note not found!");
+    }
+}
 
-module.exports = { add, remove };
+module.exports = { add, remove, get, getAll, list, listDetailed, read };
