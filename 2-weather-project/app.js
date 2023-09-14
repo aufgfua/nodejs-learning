@@ -1,7 +1,7 @@
 require("dotenv").config();
 
-const { WeatherAPI } = require("./weather");
-const { GeolocationAPI } = require("./geolocation");
+const { WeatherAPI } = require("./utils/weather");
+const { GeolocationAPI } = require("./utils/geolocation");
 
 const PROCESS_LOCATION_IDX = 2;
 const getLocationFromArgv = () => {
