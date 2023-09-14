@@ -26,13 +26,14 @@ class WeatherAPI {
         const url = this.getUrl({ query: `${lat},${long}` });
         request({ url: url, json: true }, (error, response) => {
             if (error) {
-                console.log("Something went wrong with the weather call:");
-                console.log(error);
+                callback(
+                    "Something went wrong with the weather call",
+                    undefined
+                );
             } else if (response.success === false) {
-                console.log("Received an error from the weather call:");
-                console.log(response.error.info);
+                callback("Received an error from the weather call", undefined);
             } else {
-                callback(response.body);
+                callback(undefined, response.body);
             }
         });
     }

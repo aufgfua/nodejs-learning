@@ -25,25 +25,35 @@ class GeolocationAPI {
         const url = this.getUrl({ text: locationText });
         request({ url: url, json: true }, (error, response) => {
             if (error) {
-                console.log("Something went wrong with the location call:");
-                console.log(error);
+                callback(
+                    "Something went wrong with the location call",
+                    undefined
+                );
             } else if (response.error) {
-                console.log("Received an error from the geolocation call:");
-                console.log(response.message);
+                callback(
+                    "Received an error from the geolocation call",
+                    undefined
+                );
             } else if (
                 !response.body.features ||
                 !response.body.features.length
             ) {
-                console.log("No location was found during geolocation call:");
-                console.log(response.message);
+                callback(
+                    "No location was found during geolocation call",
+                    undefined
+                );
             } else {
-                callback(response.body);
+                callback(undefined, response.body);
             }
         });
     }
 
     getLocationProps(locationText, callback) {
-        this.getLocationData(locationText, (locationData) => {
+        this.getLocationData(locationText, (error, locationData) => {
+            if (error) {
+                callback(error, undefined);
+                return;
+            }
             const cityProps = locationData.features[0].properties;
 
             const locationLatLon = {
@@ -52,7 +62,7 @@ class GeolocationAPI {
                 name: cityProps.formatted,
             };
 
-            callback(locationLatLon);
+            callback(error, locationLatLon);
         });
     }
 }

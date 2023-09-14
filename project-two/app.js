@@ -3,6 +3,11 @@ const request = require("postman-request");
 const { WeatherAPI } = require("./weather");
 const { GeolocationAPI } = require("./geolocation");
 
+const PROCESS_LOCATION_IDX = 2;
+const getLocationFromArgv = () => {
+    return process.argv[PROCESS_LOCATION_IDX];
+};
+
 const weatherApiKey = process.env.WEATHER_API_KEY;
 const weather = new WeatherAPI(weatherApiKey);
 
@@ -10,8 +15,12 @@ const geolocationApiKey = process.env.GEOAPIFY_API_KEY;
 const geolocation = new GeolocationAPI(geolocationApiKey);
 
 function requestWeather(lat, long) {
-    weather.getWeatherData({ lat, long }, (resp) => {
-        current = resp.current;
+    weather.getWeatherData({ lat, long }, (err, weatherProps) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        current = weatherProps.current;
         const temperature = current.temperature;
         const feelsLike = current.feelslike;
 
@@ -20,10 +29,19 @@ function requestWeather(lat, long) {
 }
 
 function requestWeatherFromLocation(locationText) {
-    geolocation.getLocationProps(locationText, (locationProps) => {
+    geolocation.getLocationProps(locationText, (err, locationProps) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
         console.log(`${locationProps.name}:`);
         requestWeather(locationProps.lat, locationProps.lon);
     });
 }
 
-requestWeatherFromLocation("Canoas, RS");
+const requestedLocation = getLocationFromArgv();
+
+if (!requestedLocation) {
+    return console.log("Please provide a location");
+}
+requestWeatherFromLocation(requestedLocation);
