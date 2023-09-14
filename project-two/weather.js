@@ -1,5 +1,5 @@
 const querystring = require("querystring");
-const request = require("postman-request");
+const https = require("http");
 
 class WeatherAPI {
     BASE_URL = "http://api.weatherstack.com/current";
@@ -22,20 +22,38 @@ class WeatherAPI {
         return this.BASE_URL + "?" + querystring.stringify(options);
     }
 
-    getWeatherData({ lat, long }, callback) {
+    processResponse(error, response, callback) {
+        if (error) {
+            callback("Something went wrong with the weather call");
+            return;
+        }
+        if (response.success === false) {
+            callback("Received an error from the weather call");
+            return;
+        }
+        callback(undefined, response);
+    }
+
+    getWeatherData({ lat, long } = {}, callback) {
         const url = this.getUrl({ query: `${lat},${long}` });
-        request({ url: url, json: true }, (error, response) => {
-            if (error) {
-                callback(
-                    "Something went wrong with the weather call",
-                    undefined
-                );
-            } else if (response.success === false) {
-                callback("Received an error from the weather call", undefined);
-            } else {
-                callback(undefined, response.body);
-            }
+
+        const request = https.request(url, (resp) => {
+            let data = "";
+            resp.on("data", (chunk) => {
+                data += chunk;
+            });
+
+            resp.on("end", () => {
+                const finalData = JSON.parse(data);
+                this.processResponse(undefined, finalData, callback);
+            });
         });
+
+        request.on("error", (error) => {
+            this.processResponse(error, undefined, callback);
+        });
+
+        request.end();
     }
 }
 

@@ -1,5 +1,5 @@
 const querystring = require("querystring");
-const request = require("postman-request");
+const https = require("https");
 
 class GeolocationAPI {
     BASE_URL = "https://api.geoapify.com/v1/geocode/search";
@@ -21,31 +21,44 @@ class GeolocationAPI {
         return this.BASE_URL + "?" + querystring.stringify(options);
     }
 
+    processResponse(error, response, callback) {
+        if (error) {
+            callback("Something went wrong with the location call");
+            return;
+        }
+        if (response.error) {
+            callback("Received an error from the geolocation call");
+            return;
+        }
+        if (!response.features || !response.features.length) {
+            callback("No location was found during geolocation call");
+            return;
+        }
+
+        callback(undefined, response);
+    }
+
     getLocationData(locationText, callback) {
         const url = this.getUrl({ text: locationText });
-        request({ url: url, json: true }, (error, response) => {
-            if (error) {
-                callback(
-                    "Something went wrong with the location call",
-                    undefined
-                );
-            } else if (response.error) {
-                callback(
-                    "Received an error from the geolocation call",
-                    undefined
-                );
-            } else if (
-                !response.body.features ||
-                !response.body.features.length
-            ) {
-                callback(
-                    "No location was found during geolocation call",
-                    undefined
-                );
-            } else {
-                callback(undefined, response.body);
-            }
+
+        const request = https.request(url, (resp) => {
+            let data = "";
+
+            resp.on("data", (chunk) => {
+                data += chunk;
+            });
+
+            resp.on("end", () => {
+                const responseData = JSON.parse(data);
+                this.processResponse(undefined, responseData, callback);
+            });
         });
+
+        request.on("error", (error) => {
+            this.processResponse(error, undefined, callback);
+        });
+
+        request.end();
     }
 
     getLocationProps(locationText, callback) {

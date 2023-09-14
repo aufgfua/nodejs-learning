@@ -1,5 +1,5 @@
 require("dotenv").config();
-const request = require("postman-request");
+
 const { WeatherAPI } = require("./weather");
 const { GeolocationAPI } = require("./geolocation");
 
