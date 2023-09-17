@@ -1,7 +1,16 @@
 const path = require("path");
+require("dotenv").config();
 
 const express = require("express");
 const hbs = require("hbs");
+const GeolocationAPI = require("./utils/geolocation");
+const WeatherAPI = require("./utils/weather");
+
+const geolocationApiKey = process.env.GEOAPIFY_API_KEY;
+const geolocation = new GeolocationAPI(geolocationApiKey);
+
+const weatherApiKey = process.env.WEATHER_API_KEY;
+const weather = new WeatherAPI(weatherApiKey);
 
 const publicFolder = path.join(__dirname, "../public");
 const templateFolder = path.join(__dirname, "../templates");
@@ -16,28 +25,13 @@ hbs.registerPartials(partialsFolder);
 
 app.use(express.static(publicFolder));
 
-app.get("/", (req, res) => {
-    res.render("index", {
-        title: "Base Page",
-        content: "Base Page Content",
-        footer: "Footer content",
-    });
-});
-
-app.get("/help", (req, res) => {
-    res.render("help", {
-        title: "Help page",
-        content: "Helpful Content",
-        footer: "Footer content",
-    });
-});
-
-app.get("/help/*", (req, res) => {
-    res.render("404", {
-        title: "Help 404",
-        content: "Help content not found",
-        footer: "Help Page Accessed Footer",
-    });
+app.get("/", async (req, res) => {
+    try {
+        const { lat, lon, name } = await geolocation.getLocationProps("Canoas");
+        res.send(await weather.getWeatherData({ lat, lon }));
+    } catch (error) {
+        res.send(error.toString());
+    }
 });
 
 app.get("*", (req, res) => {
