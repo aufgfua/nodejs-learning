@@ -1,3 +1,70 @@
-h1 {
-    background-color: red;
+:root {
+    --button-background-gray: #ccc;
+    --border-divisor-gray: #bbb;
+    --light-gray: #777;
+    --dark-gray: #555;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    min-height: 100vh;
+    max-width: 768px;
+    margin: 0 auto;
+    padding: 0 2rem; 
+    display: flex;
+    flex-direction: column;
+}
+
+#location-input {
+    padding: 0.5rem 1rem;
+    border-radius: 0;
+    border: 1px solid var(--border-divisor-gray)
+}
+
+#submit-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0;
+    border: 1px solid var(--border-divisor-gray);
+    background-color: var(--button-background-gray);
+}
+
+#submit-btn:hover {
+    background-color: var(--border-divisor-gray);
+} 
+
+#forecast-result {
+    margin-top: 2rem;
+}
+
+#header {
+    font-size: 3rem;
+    font-weight: 700;
+    padding: 3rem 0;
+    border-bottom: 1px var(--border-divisor-gray) solid;
+}
+
+#content {
+    padding: 1.5rem 0;
+    flex-grow: 1;
+}
+
+#footer {
+    padding: 1rem 0;
+    border-top: 1px var(--border-divisor-gray) solid;
+    font-weight: 600;
+    color: var(--light-gray);
+}
+
+a {
+    color: var(--light-gray);
+}
+
+a:hover {
+    color: var(--dark-gray);
+}
+
+a:hover {
+    color: #555;
 }

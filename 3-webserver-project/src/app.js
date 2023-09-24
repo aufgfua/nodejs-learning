@@ -25,10 +25,20 @@ hbs.registerPartials(partialsFolder);
 
 app.use(express.static(publicFolder));
 
+
 app.get("/", async (req, res) => {
+    res.render("index", {
+        title: "Home page",
+        footer: "Home page"
+    });
+});
+
+app.get("/weather", async (req, res) => {
     try {
-        const { lat, lon, name } = await geolocation.getLocationProps("Canoas");
-        res.send(await weather.getWeatherData({ lat, lon }));
+        let location = req.query.location;
+        const { lat, lon, name } = await geolocation.getLocationProps(location);
+        const forecast = await weather.getWeatherData({ lat, lon });
+        res.send(forecast);
     } catch (error) {
         res.send(error.toString());
     }
@@ -37,8 +47,8 @@ app.get("/", async (req, res) => {
 app.get("*", (req, res) => {
     res.render("404", {
         title: "404",
-        content: "Generic content not found",
-        footer: "Generic Page Accessed Footer",
+        content: "Page not found!",
+        footer: "404 page"
     });
 });
 

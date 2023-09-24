@@ -7,7 +7,17 @@
     </head>
     <body>
         {{>header}}
-        {{content}}
+        <div id="content">
+            <h3>
+                Search location:
+            </h3>
+            <form id="weather-form">
+                <input type="text" id="location-input" placeholder="Location">
+                <button type="submit" id="submit-btn">Search</button>
+            </form>
+            <p id="forecast-result"></p>
+        </div> 
         {{>footer}}
+        <script src="/js/index.js"></script>
     </body>
 </html>
